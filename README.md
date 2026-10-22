@@ -92,6 +92,8 @@ Platform images are listed in `infra/images.txt`. OpenTofu pulls each one on the
 
 The cluster is one kind node. That is small enough for a laptop and for a GitHub hosted runner. The node image is pinned. Published ports are bound to `127.0.0.1` only. After the node is ready, OpenTofu sets kube-proxy to nftables so Service routing uses the native nftables backend. The ingress controller joins the node network and listens on port 80. kind publishes that port as HTTP on 18080. Grafana uses NodePort 30180, published on port 13000. Grafana does not use a subpath.
 
+The inference NetworkPolicy allows pods in the ingress and monitoring namespaces. It also allows the private address ranges used by a kind node. The controller shares the node network, so a namespace selector does not match it, and kube-proxy in nftables mode can present the reply as traffic from that node.
+
 The model is trained during `docker build` from a synthetic grid. No dataset is downloaded. The labels follow three rules. A request with no GPU goes to the CPU queue. A GPU request with low priority and a runtime of 12 hours or more goes to the preemptible GPU queue. Every other GPU request goes to the GPU queue. Framework, CPU count, and memory are part of the request because a real job record contains them. They do not change the label. The forest is trained to recover the rules, including on values that were not in the training grid.
 
 The image also contains a copy of the model. An init container copies that file onto a PersistentVolumeClaim when the volume is empty. The volume uses the local-path provisioner and `ReadWriteOnce`. On this one node, several pods can mount it. A cluster with more than one node would need a volume that many nodes can mount.

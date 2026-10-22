@@ -42,6 +42,16 @@ for _ in $(seq 1 60); do
 done
 if [[ "${ready}" != "1" ]]; then
   echo "Timed out waiting for the inference service." >&2
+  KUBECTL="${ROOT}/.tools/kubectl"
+  if [[ ! -x "${KUBECTL}" ]]; then
+    KUBECTL="kubectl"
+  fi
+  export KUBECONFIG="${ROOT}/infra/.kube/config"
+  "${KUBECTL}" get pods -A -o wide >&2 || true
+  "${KUBECTL}" get endpoints,endpointslices,ingress,networkpolicy -A >&2 || true
+  "${KUBECTL}" describe pods -n ml-inference >&2 || true
+  "${KUBECTL}" logs -n ml-inference -l app.kubernetes.io/name=inference --all-containers --tail=80 >&2 || true
+  "${KUBECTL}" logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx --tail=80 >&2 || true
   exit 1
 fi
 

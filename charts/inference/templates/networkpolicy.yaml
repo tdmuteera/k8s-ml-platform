@@ -27,6 +27,13 @@ spec:
         - protocol: TCP
           port: {{ $.Values.containerPort }}
     {{- end }}
+    {{- /* hostNetwork ingress is the node address, not an ingress-nginx pod. */}}
+    {{- /* Ports are omitted so nftables hairpin replies from that node match. */}}
+    {{- range .Values.networkPolicy.nodeCIDRs }}
+    - from:
+        - ipBlock:
+            cidr: {{ . | quote }}
+    {{- end }}
   egress:
     - to:
         - namespaceSelector:

@@ -56,6 +56,12 @@ networkPolicy:
   ingressNamespaces:
     - ingress-nginx
     - monitoring
+  # kind node addresses and the docker bridge. hostNetwork ingress does not
+  # match the namespace selector above.
+  nodeCIDRs:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
 
 serviceMonitor:
   enabled: true
