@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "inference.fullname" . }}
+  labels:
+    {{- include "inference.labels" . | nindent 4 }}
+data:
+  LOG_LEVEL: {{ .Values.config.logLevel | quote }}
+  PREDICT_REPEATS: {{ .Values.config.predictRepeats | quote }}
+  MODEL_PATH: {{ printf "%s/model.joblib" .Values.model.mountPath | quote }}
+  BAKED_MODEL_PATH: {{ .Values.model.bakedPath | quote }}

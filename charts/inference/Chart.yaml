@@ -1,0 +1,6 @@
+apiVersion: v2
+name: inference
+description: ML inference service for the local Kubernetes laboratory.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

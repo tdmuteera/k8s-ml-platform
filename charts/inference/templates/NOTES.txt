@@ -1,0 +1,3 @@
+The inference service is installed in the {{ .Release.Namespace }} namespace.
+Use the URL printed by make up. The predict endpoint requires an X-API-Key header.
+Grafana, when it is enabled, is on the host port printed with the other outputs.

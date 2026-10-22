@@ -1,0 +1,81 @@
+fullnameOverride: inference
+replicaCount: 1
+containerPort: 8000
+
+image:
+  repository: k8s-ml-inference
+  tag: local
+  # The image is loaded into the kind node. It is not in a registry.
+  pullPolicy: Never
+
+apiKey: ""
+
+podAnnotations: {}
+
+config:
+  logLevel: info
+  # A single prediction is too small to move CPU. Repeats make the load test
+  # able to cross the autoscaler target. This is a demonstration control.
+  predictRepeats: 40
+
+model:
+  mountPath: /models
+  bakedPath: /opt/model/model.joblib
+  size: 1Gi
+  storageClassName: local-path
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
+
+seedResources:
+  requests:
+    cpu: 20m
+    memory: 32Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+ingress:
+  enabled: true
+  className: nginx
+  path: /
+
+hpa:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 50
+
+networkPolicy:
+  enabled: true
+  ingressNamespaces:
+    - ingress-nginx
+    - monitoring
+
+serviceMonitor:
+  enabled: true
+  # Must match the kube-prometheus-stack release name.
+  labels:
+    release: monitoring
+
+dashboard:
+  enabled: true
+
+quota:
+  requestsCpu: "2"
+  requestsMemory: 1Gi
+  limitsCpu: "5"
+  limitsMemory: 3Gi
+  pods: "8"
+  persistentVolumeClaims: "2"
+
+limitRange:
+  defaultCpu: 500m
+  defaultMemory: 256Mi
+  defaultRequestCpu: 50m
+  defaultRequestMemory: 64Mi

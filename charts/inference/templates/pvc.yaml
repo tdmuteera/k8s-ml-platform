@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "inference.fullname" . }}-models
+  labels:
+    {{- include "inference.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.model.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.model.size }}

@@ -1,0 +1,55 @@
+# Ingress NGINX was retired in March 2026. This laboratory still uses it
+# because the service is published with the Ingress API and kind documents
+# this controller. The README records the Gateway API follow up.
+controller:
+  replicaCount: 1
+  # Listen on the kind node network. kind publishes node port 80 as 127.0.0.1:18080.
+  # hostNetwork does not use the portmap plugin, so it does not need the multiport
+  # iptables extension.
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  hostPort:
+    enabled: false
+  image:
+    # Empty digests keep the tag. The preload step imports that tag into the
+    # node. A pinned index digest makes kubelet contact the registry again.
+    digest: ""
+    digestChroot: ""
+  admissionWebhooks:
+    patch:
+      image:
+        digest: ""
+  service:
+    type: ClusterIP
+  config:
+    ssl-redirect: "false"
+    use-forwarded-headers: "true"
+  metrics:
+    enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 90Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 101
+    runAsGroup: 82
+    allowPrivilegeEscalation: true
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
+      add:
+        - NET_BIND_SERVICE
+    readOnlyRootFilesystem: false
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule

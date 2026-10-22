@@ -1,0 +1,12 @@
+{{- if .Values.dashboard.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "inference.fullname" . }}-dashboard
+  labels:
+    {{- include "inference.labels" . | nindent 4 }}
+    grafana_dashboard: "1"
+data:
+  inference.json: |
+{{ .Files.Get "files/inference-dashboard.json" | indent 4 }}
+{{- end }}
